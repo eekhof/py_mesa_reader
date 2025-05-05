@@ -369,6 +369,10 @@ class MesaData:
             return np.log10(self.bulk_data[self._exp10_version(key)])
         elif self._exp_version(key) is not None:
             return np.log(self.bulk_data[self._exp_version(key)])
+        elif key == "luminosity" and self.in_data("log_L"):
+            return 10 ** self.bulk_data["log_L"]
+        elif key == "log_L" and self.in_data("luminosity"):
+            return np.log(self.bulk_data["luminosity"])
         else:
             raise KeyError("'" + str(key) + "' is not a valid data type.")
 
