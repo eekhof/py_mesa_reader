@@ -200,7 +200,7 @@ class MesaData:
             self.file_name,
             skip_header=MesaData.bulk_names_line - 1,
             names=True,
-            ndmin=1,  # Make sure a single entry is still a 1D array
+            #ndmin=1,  # Make sure a single entry is still a 1D array
             dtype=None,
         )
         self.bulk_names = self.bulk_data.dtype.names
@@ -369,10 +369,6 @@ class MesaData:
             return np.log10(self.bulk_data[self._exp10_version(key)])
         elif self._exp_version(key) is not None:
             return np.log(self.bulk_data[self._exp_version(key)])
-        elif key == "luminosity" and self.in_data("log_L"):
-            return 10 ** self.bulk_data["log_L"]
-        elif key == "log_L" and self.in_data("luminosity"):
-            return np.log(self.bulk_data["luminosity"])
         else:
             raise KeyError("'" + str(key) + "' is not a valid data type.")
 
@@ -500,6 +496,8 @@ class MesaData:
             The "logified" version of the key, if available. If unavailable,
             `None`.
         """
+        if key=="luminosity" and self.in_data("log_L"):
+            return "log_L"
         log_prefixes = ["log_", "log", "lg_", "lg"]
         for prefix in log_prefixes:
             if self.in_data(prefix + key):
@@ -547,6 +545,8 @@ class MesaData:
         """
         log_matcher = re.compile(r"^lo?g_?(.+)")
         matches = log_matcher.match(key)
+        if key=="log_L" and self.in_data("luminosity"):
+            return "luminosity"
         if matches is not None:
             groups = matches.groups()
             if self.in_data(groups[0]):
